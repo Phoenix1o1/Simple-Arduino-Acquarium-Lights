@@ -1,3 +1,15 @@
+/* SimpleArduinoAcquarium 
+This code was born while trying to impress my step father, that owns a huge aquarium,
+but was lacking a system to automatically control lights timing. Minimum code knowledge required,
+and minimum hardware requirement. this is the stripped down version, i am working on a more complex implementation,
+but i will always leave this here, because it is easy to use, functional enough, and easily expandable. 
+I had this code running for over six months straight on a Nano, and never had any issue.
+Using EEPROM it saves the current state of the light, so in case of a power loss, it will restore at the previous state.
+Any suggestion, help needed or request has to be directet to the main GitHub project.
+https://github.com/Phoenix1o1/SimpleArduinoAcquarium
+there is no warranty for this software, but if i were you, i'd trust me.
+*/
+
 #include <Wire.h>               // essential libraries needed for the project
 #include <RTClib.h>
 #include <LiquidCrystal_I2C.h>
@@ -6,37 +18,37 @@
 RTC_DS1307 rtc;
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
-bool stat1;
+bool stat1;         //boolean status for EEPROM
 bool stat2;
 bool stat3;
 bool stat4;
 
 
-#define RELAY1  2    //BLU                    
+#define RELAY1  2    //BLU         //those are the pins the relays are connected to           
 #define RELAY2  3    //VER                    
 #define RELAY3  4    //ROS                    
 #define RELAY4  5    //BIA
 
 
-  int luce1=0;    //BLU
-  int luce2=0;    //VER
-  int luce3=0;    //ROS
+  int luce1=0;    //BLU           //integers to state wheter to have lights on or off at startup
+  int luce2=0;    //VER           //i'd leave them off to prevent flashing on/off. also those ints 
+  int luce3=0;    //ROS           //prevent eccessive EEPROM usages
   int luce4=0;    //BIA
 
 
 //ORE ACCENSIONE
-  int ore1on=10;  //BLU
-  int min1on=0;
-  int ore2on=10;  //VER
+  int ore1on=10; //HOUR            //BLU           //this is where you set times ON
+  int min1on=0;  //MINUTES
+  int ore2on=10;                   //VER
   int min2on=30;
-  int ore3on=11;  //ROS
+  int ore3on=11;                   //ROS
   int min3on=0;
-  int ore4on=11;  //BIA
+  int ore4on=11;                   //BIA
   int min4on=30;
 
   //ORE SPEGNIMENTO
 
-  int ore1off=23; //BLU
+  int ore1off=23; //BLU                           //this is where you set times OFF
   int min1off=0;
   int ore2off=22; //VER
   int min2off=30; 
@@ -45,22 +57,22 @@ bool stat4;
   int ore4off=18; //BIA
   int min4off=30;
 
-  int x=0;
+  int x=0;  //count for cycling lcd info printout
   
 void setup () {
   
-  stat1 = EEPROM.read(0);
+  stat1 = EEPROM.read(0);     //get previous light status from EEPROM
   stat2 = EEPROM.read(1);
   stat3 = EEPROM.read(2);
   stat4 = EEPROM.read(3);
 
 
-  luce1= stat1;
+  luce1= stat1;     //assign that status to variables
   luce2= stat2;
   luce3= stat3;
   luce4= stat4;
   
-  Wire.begin();
+  Wire.begin();   //init LCD and RTC
   lcd.begin();
   lcd.backlight();
   lcd.clear();
@@ -75,26 +87,24 @@ void setup () {
   digitalWrite(RELAY3,HIGH);
   digitalWrite(RELAY4,HIGH);
 
+//the following line sets the RTC to the date & time this sketch was compiled if uncommented
 
-/*
-    // following line sets the RTC to the date & time this sketch was compiled if uncommented
+      //rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+ 
+ // This line sets the RTC with an explicit date & time, for example to set
+ // January 21, 2014 at 3am you would call:
+ 
+      // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0)); 
 
-    //rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-     
-     // This line sets the RTC with an explicit date & time, for example to set
-     // January 21, 2014 at 3am you would call:
-     
-     // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0)); 
-  */
   
 }
 
 void loop () {
 
 
-  DateTime now = rtc.now();
-
-    //ORE
+  DateTime now = rtc.now();     //read RTC time
+  
+  
   //lcd.clear();      //MIGHT CAUSE OR FIX RANDOM FLASHES ON SOME lcd's, TRY TO UNCOMMENT AND SEE HOW THAT GOES
   lcd.setCursor(0,0);
   lcd.print("  :  :      /  /");
@@ -113,9 +123,9 @@ void loop () {
   
   x=x+1;
   
-  if(x==1||x==2){                   //this is just t circle the set times on the screen, you can either set it up manually or delete alltogether
+  if(x==1||x==2){                   //this is just to circle the set times on the screen, you can either set it up manually or delete alltogether
     lcd.setCursor(0,1);
-    lcd.print("BLU 10:00 -> 23:00  ");
+    lcd.print("BLU 10:00 -> 23:00  ");    //edit this line to display correct timings
   }
   if(x==3||x==4){
     lcd.setCursor(0,1);
@@ -135,12 +145,12 @@ void loop () {
   
 
   lcd.setCursor(0,2);
-  lcd.print("BLU  VER  ROS  BIA");
+  lcd.print("BLU  VER  ROS  BIA");      //those are reference name for the four channels
 
-  //RELAYS
+  
 
-  lcd.setCursor(0,3);
-  if(luce1 == 0){
+  lcd.setCursor(0,3);       //this updates both LCD channel status AND the relays status, it goes off
+  if(luce1 == 0){           //a second after the set time
     lcd.print("OFF");
     EEPROM.update(0,0);
     digitalWrite(RELAY1,HIGH);
@@ -187,7 +197,7 @@ void loop () {
     digitalWrite(RELAY4,LOW);
   }
 
-int hour=now.hour();
+int hour=now.hour();          //this is the part of the code that does a second-by-second check to decide what to turn ON or OFF
 int minute=now.minute();
 
   if(hour==ore1on){
@@ -225,6 +235,6 @@ int minute=now.minute();
     if(minute==min4off) luce4=0;
   }
 
-    delay(900);
+    delay(900);             //tweak this to get a screen update every second (100ms execution plus 900ms delay = almost 1 s)
 }
 
