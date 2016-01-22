@@ -1,4 +1,5 @@
 # SimpleArduinoAcquarium
+
 This is intended to be an easy to understand piece of arduino code, that will, with minimal hardware, get you started on any project where you might need to time on and off lights or any other appliance.
 
 To work this code only needs:
@@ -11,6 +12,6 @@ An RTC (I prefer and suggest I2C DS1307, but with little changes any would do)
 
 Optional- 20 x 4 I2C LCD, but you could easily do without, as it is just for visual feedback
 
-I will soon post schematics and the code itself, you have to find the required libraries yourself, but i'll try to find them and eventually link them here.
-
+I uploaded the required libraries, for easier use.
 Libraries Credits goes to their creators.
+
