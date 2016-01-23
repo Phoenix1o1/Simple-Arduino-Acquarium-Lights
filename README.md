@@ -1,4 +1,4 @@
-# SimpleArduinoAcquarium
+# Simple-Arduino-Acquarium-Lights
 
 This is intended to be an easy to understand piece of arduino code, that will, with minimal hardware, get you started on any project where you might need to time on and off lights or any other appliance.
 
