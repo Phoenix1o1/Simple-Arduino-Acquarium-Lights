@@ -1,3 +1,5 @@
+#include <LiquidCrystal_I2C.h>
+
 /* SimpleArduinoAcquarium 
 This code was born while trying to impress my step father, that owns a huge aquarium,
 but was lacking a system to automatically control lights timing. Minimum code knowledge required,
@@ -12,7 +14,7 @@ there is no warranty for this software, but if i were you, i'd trust me.
 
 #include <Wire.h>               // essential libraries needed for the project
 #include <RTClib.h>
-#include <LiquidCrystal_I2C.h>
+//#include <Arduino-LiquidCrystal_I2C.h>
 #include <EEPROM.h>
 
 RTC_DS1307 rtc;
@@ -42,9 +44,9 @@ bool stat4;
   int ore2on=10;                   //VER
   int min2on=30;
   int ore3on=11;                   //ROS
-  int min3on=0;
-  int ore4on=11;                   //BIA
-  int min4on=30;
+  int min3on=30;
+  int ore4on=10;                   //BIA
+  int min4on=00;
 
   //ORE SPEGNIMENTO
 
@@ -52,10 +54,10 @@ bool stat4;
   int min1off=0;
   int ore2off=22; //VER
   int min2off=30; 
-  int ore3off=22; //ROS
-  int min3off=0;
-  int ore4off=18; //BIA
-  int min4off=30;
+  int ore3off=21; //ROS
+  int min3off=30;
+  int ore4off=22; //BIA
+  int min4off=00;
 
   int x=0;  //count for cycling lcd info printout
   
@@ -73,7 +75,7 @@ void setup () {
   luce4= stat4;
   
   Wire.begin();   //init LCD and RTC
-  lcd.begin();
+  lcd.init();
   lcd.backlight();
   lcd.clear();
 
@@ -133,13 +135,17 @@ void loop () {
   }
   if(x==5||x==6){
     lcd.setCursor(0,1);
-    lcd.print("ROSSO 11:00 -> 22:00");
+    lcd.print("ROSSO 11:30 -> 21:30");
   }
   if(x==7||x==8){
     lcd.setCursor(0,1);
-    lcd.print("BIANCO 11:30 ->18:30");
+    lcd.print("BIANCO 10:00 ->22:00");
   }
-  if(x==8){
+  if(x==9||x==10){
+    lcd.setCursor(0,1);
+    lcd.print("AGGIORNATO 3.11.16");
+  }
+  if(x==10){
     x=0;
   }
   
